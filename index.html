@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html ng-app="countryApp">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Hello Angular</title>
+    <script src="js/angular-1.3.0.js"></script>
+    <script src="js/angular-route.js"></script>
+    <script>
+      var countryApp = angular.module('countryApp', ['ngRoute']);
+
+      countryApp.config(function ($routeProvider) {
+        $routeProvider
+          .when('/', {
+            templateUrl: 'template/country-list.html',
+            controller: 'CountryListCtrl'
+          })
+          .when('/:countryName', {
+            templateUrl: 'template/country-detail.html',
+            controller: 'CountryDetailCtrl'
+          })
+          .otherwise({
+            redirectTo: '/'
+          });
+      });
+
+      countryApp.factory('countries', ['$http', function (http) {
+        var cacheData;
+
+        function getData(callback) {
+          http({
+            method: 'GET',
+            url: './data/countries.json',
+            cache: true
+          }).success(function (data) {
+              cacheData = data;
+              callback(data);
+            });
+        }
+
+        return {
+          'list': getData,
+          'detail': function (name, callback) {
+            http.get('./data/' + name + '.json')
+            .success(callback);
+          }
+        };
+      }]);
+
+      countryApp.controller('CountryListCtrl', ['$scope', 'countries', function (scope, countries) {
+            countries.list(function (data) {
+              scope.countries = data;
+            });
+      }]);
+
+      countryApp.controller('CountryDetailCtrl', ['$scope', '$routeParams', 'countries', function (scope, routeParams, countries) {
+        scope.name = routeParams.countryName;
+        scope.name = decodeURIComponent(scope.name);
+        countries.detail(scope.name, function (data) {
+          scope.country = data;
+        });
+      }]);
+
+    </script>
+  </head>
+  <body>
+    <div ng-view></div>
+  </body>
+</html>

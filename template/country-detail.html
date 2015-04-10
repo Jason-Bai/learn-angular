@@ -1,0 +1,6 @@
+<h1>TODO create country detail view</h1>
+Name: {{ country.name }}<br/>
+Population: {{ country.population | number }} <br/>
+Flag: <img ng-src="{{ country.flagURL }}" width="100"/><br/>
+Captical: {{ country.capital }}<br/>
+Gdp: {{country.gdp || currency}}
